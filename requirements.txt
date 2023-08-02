@@ -1,0 +1,7 @@
+pillow==8.4.0
+simpleitk==2.2.1
+numpy
+tqdm
+segmentation_models_pytorch==0.3.3
+torchvision>=0.10.0
+torch>=1.6.0
