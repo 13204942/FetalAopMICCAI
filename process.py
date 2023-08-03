@@ -13,7 +13,7 @@ import segmentation_models_pytorch as smp
 
 execute_in_docker = True
 
-root_path = '/Users/fangyijiewang/Desktop/PhD/MICCAI2023'
+#root_path = '/Users/fangyijiewang/Desktop/PhD/MICCAI2023'
 
 val_transforms = T.Compose(
     [
@@ -42,49 +42,63 @@ class NoduleSeg:
         self.md = MySegmentationModel(path_model)
         load_success = self.md.load_model()
         if load_success:
-            print("Successfully loaded model.")
-            logging.info("Successfully loaded model.")
+            print(f"Successfully loaded model {path_model}.")
+        else:
+            print(f"Failed to load model {path_model}.")
 
     def load_image(self, img_path) -> numpy.ndarray:
         img = sitk.ReadImage(img_path)
         nda = sitk.GetArrayFromImage(img)
-
         img_array = np.transpose(nda, (1, 2, 0))
         return img_array
 
-    def imge_to_tensor(self, data):
-        img_rgb = Image.fromarray(data, 'RGB')
-        image = val_transforms(img_rgb)
-        return image[None, :]
+    def img_to_tensor(self, data):
+        out = None
+        try:
+            img_rgb = Image.fromarray(data, 'RGB')
+            image = val_transforms(img_rgb)
+            out = image[None, :]
+        except Exception as e:
+            print(f"{e} - [img_to_tensor] failed to convert image to tensor object")
+        return out
 
     def write_outputs(self, image_name, outputs):
-        if not os.path.exists(f"/output/images/symphysis-segmentation"):
-            os.makedirs(f"/output/images/symphysis-segmentation")
-        sitk.WriteImage(outputs, f"/output/images/symphysis-segmentation" + image_name + '.mha')
+        try:
+            if not os.path.exists(f"/output/images/symphysis-segmentation"):
+                os.makedirs(f"/output/images/symphysis-segmentation")
+            sitk.WriteImage(outputs, f"/output/images/symphysis-segmentation" + image_name + '.mha')
+        except Exception as e:
+            print(f"{e} - [write_outputs] failed to write image to target path")
 
     def predict(self, image_data):
-        with torch.no_grad():
-            # Put it into the network for processing
-            pred = self.md.process_image(image_data)
-            # Post-processing and saving of predicted images
-            mask_g = pred[0][1, :, :].detach().cpu().numpy() * np.array([0])
-            mask_pubic = pred[0][1, :, :].detach().cpu().numpy() * np.array([1])
-            mask_head = pred[0][2, :, :].detach().cpu().numpy() * np.array([2])
-            pred_img = sitk.GetImageFromArray(mask_g + mask_pubic + mask_head)
+        pred_img = None
+        try:
+            with torch.no_grad():
+                # Put it into the network for processing
+                pred = self.md.process_image(image_data)
+                # Post-processing and saving of predicted images
+                mask_g = pred[0][1, :, :].detach().cpu().numpy() * np.array([0])
+                mask_pubic = pred[0][1, :, :].detach().cpu().numpy() * np.array([1])
+                mask_head = pred[0][2, :, :].detach().cpu().numpy() * np.array([2])
+                pred_img = sitk.GetImageFromArray(mask_g + mask_pubic + mask_head)
+        except Exception as e:
+            print(f"[predict] cannot do prediction with {e}")
 
-            return pred_img
+        return pred_img
 
     def process(self):
-        image_paths = list(self.input_dir.glob("*"))
-
-        for image_path in image_paths:
-            image_name = os.path.basename(image_path).split('.')[0]
-            image_data = self.load_image(image_path)
-            image_tensor = self.imge_to_tensor(image_data)
-            result = self.predict(image_tensor)
-            self.write_outputs(image_name, result)
-        print("Success hsiadhfjowiqjeoijfosdj9832049820sahfdi389u4903u409")
-
+        try:
+            image_paths = list(self.input_dir.glob("*"))
+            print(f"Received {len(image_paths)} input images")
+            for image_path in image_paths:
+                image_name = os.path.basename(image_path).split('.')[0]
+                image_data = self.load_image(image_path)
+                image_tensor = self.img_to_tensor(image_data)
+                result = self.predict(image_tensor)
+                self.write_outputs(image_name, result)
+            print("Success hsiadhfjowiqjeoijfosdj9832049820sahfdi389u4903u409")
+        except Exception as e:
+            print(f"[process] program failed {e}")
 
 if __name__ == "__main__":
     NoduleSeg().process()

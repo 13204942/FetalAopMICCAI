@@ -1,4 +1,3 @@
-import logging
 import torch
 import segmentation_models_pytorch as smp
 
@@ -13,14 +12,13 @@ class MySegmentationModel:
     # load saved models
     def load_model(self):
         if torch.cuda.is_available():
-            print("Model loaded on CUDA")
             self.model = torch.load(self.path_checkpoint)
+            print("[load_model] Model loaded on CUDA")
         else:
-            print("Model loaded on CPU")
             self.model = torch.load(self.path_checkpoint, map_location='cpu')
+            print("[load_model] Model loaded on CPU")
 
         self.model.to(self.device)
-        logging.info("Model loaded.")
         return True
 
     def process_image(self, input_data):
@@ -34,5 +32,4 @@ class MySegmentationModel:
         output = (output > 0.5).float()
 
         # todo  Post processing of predicted images
-
         return output
