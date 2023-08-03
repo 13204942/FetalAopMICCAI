@@ -42,9 +42,9 @@ class NoduleSeg:
         self.md = MySegmentationModel(path_model)
         load_success = self.md.load_model()
         if load_success:
-            print(f"Successfully loaded model {path_model}.")
+            print(f"Successfully loaded model {path_model}")
         else:
-            print(f"Failed to load model {path_model}.")
+            print(f"Failed to load model {path_model}")
 
     def load_image(self, img_path) -> numpy.ndarray:
         img = sitk.ReadImage(img_path)
@@ -66,7 +66,8 @@ class NoduleSeg:
         try:
             if not os.path.exists(f"/output/images/symphysis-segmentation"):
                 os.makedirs(f"/output/images/symphysis-segmentation")
-            sitk.WriteImage(outputs, f"/output/images/symphysis-segmentation" + image_name + '.mha')
+            sitk.WriteImage(outputs, f"/output/images/symphysis-segmentation/" + image_name + '.mha')
+            print(f"[write_outputs] failed to write image to target path")
         except Exception as e:
             print(f"{e} - [write_outputs] failed to write image to target path")
 
@@ -89,14 +90,18 @@ class NoduleSeg:
     def process(self):
         try:
             image_paths = list(self.input_dir.glob("*"))
-            print(f"Received {len(image_paths)} input images")
+            print(f"[process] Received {len(image_paths)} input images")
             for image_path in image_paths:
                 image_name = os.path.basename(image_path).split('.')[0]
+                print(image_path)
                 image_data = self.load_image(image_path)
+                print(f"[process] loaded {image_path}")
                 image_tensor = self.img_to_tensor(image_data)
+                print(f"[process] convert image to {image_tensor.shape} tensor")
                 result = self.predict(image_tensor)
+                print(f"[process] convert image to {image_tensor.shape} tensor")
                 self.write_outputs(image_name, result)
-            print("Success hsiadhfjowiqjeoijfosdj9832049820sahfdi389u4903u409")
+            print("[process] Success hsiadhfjowiqjeoijfosdj9832049820sahfdi389u4903u409")
         except Exception as e:
             print(f"[process] program failed {e}")
 
