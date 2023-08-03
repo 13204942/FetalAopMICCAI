@@ -9,8 +9,6 @@ ENV PATH="/home/algorithm/.local/bin:${PATH}"
 
 COPY --chown=algorithm:algorithm requirements.txt /opt/algorithm/
 COPY --chown=algorithm:algorithm model/ /opt/algorithm/model/
-COPY --chown=algorithm:algorithm test/ /opt/algorithm/test/
-COPY --chown=algorithm:algorithm model_weights/ /opt/algorithm/model_weights/
 COPY --chown=algorithm:algorithm process.py /opt/algorithm/
 COPY --chown=algorithm:algorithm segmentation.py /opt/algorithm/
 
