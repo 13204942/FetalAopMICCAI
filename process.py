@@ -66,8 +66,9 @@ class NoduleSeg:
         try:
             if not os.path.exists(f"/output/images/symphysis-segmentation"):
                 os.makedirs(f"/output/images/symphysis-segmentation")
-            sitk.WriteImage(outputs, f"/output/images/symphysis-segmentation/" + image_name + '.mha')
-            print(f"[write_outputs] failed to write image to target path")
+            trg_path = f"/output/images/symphysis-segmentation/" + image_name + '.mha'
+            sitk.WriteImage(outputs, trg_path)
+            print(f"[write_outputs] image was saved to the target path {trg_path}")
         except Exception as e:
             print(f"{e} - [write_outputs] failed to write image to target path")
 
@@ -99,7 +100,7 @@ class NoduleSeg:
                 image_tensor = self.img_to_tensor(image_data)
                 print(f"[process] convert image to {image_tensor.shape} tensor")
                 result = self.predict(image_tensor)
-                print(f"[process] convert image to {image_tensor.shape} tensor")
+                print(f"[process] get prediction result: {result.GetSize()}")
                 self.write_outputs(image_name, result)
             print("[process] Success hsiadhfjowiqjeoijfosdj9832049820sahfdi389u4903u409")
         except Exception as e:
