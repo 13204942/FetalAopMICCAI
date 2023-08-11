@@ -32,7 +32,8 @@ class NoduleSeg:
         self.input_dir = Path(f"/input/images/pelvic-2d-ultrasound/") if execute_in_docker else Path("./test/")
         self.output_dir = Path(f"/output/images/symphysis-segmentation/") if execute_in_docker else Path("./output/")
         self.device = torch.device('cpu' if not torch.cuda.is_available() else 'cuda')
-        self.batch_size = 16
+        #self.device = torch.device('mps' if not torch.backends.mps.is_available() else 'cuda')
+        self.batch_size = 10
         # todo Load the trained model
         if execute_in_docker:
             path_model = "/opt/algorithm/model/unet_frozen_timm-resnest14d_model.pt"
@@ -82,7 +83,7 @@ class NoduleSeg:
                 mask_g = pred[0][1, :, :].detach().cpu().numpy() * np.array([0])
                 mask_pubic = pred[0][1, :, :].detach().cpu().numpy() * np.array([1])
                 mask_head = pred[0][2, :, :].detach().cpu().numpy() * np.array([2])
-                pred_img = sitk.GetImageFromArray(mask_g + mask_pubic + mask_head)
+                pred_img = sitk.GetImageFromArray(np.uint8(mask_g + mask_pubic + mask_head))
         except Exception as e:
             print(f"[predict] cannot do prediction with {e}")
 
