@@ -34,12 +34,13 @@ class NoduleSeg:
         self.device = torch.device('cpu' if not torch.cuda.is_available() else 'cuda')
         #self.device = torch.device('mps' if not torch.backends.mps.is_available() else 'cuda')
         self.batch_size = 10
+        self.model_name = "unet_unfrozen_resnet18_model.pt"
         # todo Load the trained model
         if execute_in_docker:
-            path_model = "/opt/algorithm/model/unet_frozen_timm-resnest14d_model.pt"
+            path_model = f"/opt/algorithm/model/{self.model_name}"
             #path_model = f"{root_path}/fetalaop_test/model/unet_frozen_timm-resnest14d_model.pt"
         else:
-            path_model = "./model/unet_frozen_timm-resnest14d_model.pt"
+            path_model = f"./model/{self.model_name}"
         self.md = MySegmentationModel(path_model)
         load_success = self.md.load_model()
         if load_success:
