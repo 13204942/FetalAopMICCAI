@@ -34,7 +34,7 @@ class NoduleSeg:
         self.device = torch.device('cpu' if not torch.cuda.is_available() else 'cuda')
         #self.device = torch.device('mps' if not torch.backends.mps.is_available() else 'cuda')
         self.batch_size = 10
-        self.model_name = "unet_mit_b0_model.pt"
+        self.model_name = "unet_mit_b0_model_2808.pt"
         # todo Load the trained model
         if execute_in_docker:
             path_model = f"/opt/algorithm/model/{self.model_name}"
